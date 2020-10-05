@@ -45,7 +45,6 @@ def gdriveauth() -> Tuple[Resource, Resource]:
 
 
 def exponentialBackoff(
-        service: Resource,
         request: Request,
         time: int = 0,
         tries: int = 0,
@@ -69,7 +68,6 @@ def exponentialBackoff(
                 time,
                 exponentialBackoff,
                 args=(
-                    service,
                     request,
                     (tries + 1) * 2 + random.random(),
                     tries + 1,
@@ -99,7 +97,7 @@ async def odp2gslides(drive_service: Resource, slides_service: Resource):
                 body=file_metadata,
                 media_body=media,
                 fields='id')
-            gslide = exponentialBackoff(drive_service, request)
+            gslide = exponentialBackoff(request)
 
             # Close file after upload is done
             media.stream().close()
