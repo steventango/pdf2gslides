@@ -14,6 +14,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
+SOFFICE_PATH = 'C:\\Program Files\\LibreOffice\\program\\soffice.bin'
 
 
 def gdriveauth() -> Tuple[Resource, Resource]:
@@ -162,6 +163,8 @@ def pdf2odp():
     """
     if not os.path.exists('in'):
         os.makedirs('in')
+        print('Place PDF files to convert in the folder: in\\')
+        exit()
     if not os.path.exists('temp'):
         os.makedirs('temp')
 
@@ -178,7 +181,7 @@ def pdf2odp():
                 '--outdir',
                 str(pathlib.Path('./temp/').absolute()),
                 f'in/{filename}'],
-                executable='C:\\Program Files\\LibreOffice\\program\\soffice.bin',
+                executable=SOFFICE_PATH,
             )
             print(f'Converted {filename} to odp')
 
