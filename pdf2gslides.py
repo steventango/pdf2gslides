@@ -3,6 +3,7 @@ import pathlib
 import pickle
 import random
 import shutil
+import socket
 import subprocess
 from threading import Timer
 from typing import Tuple
@@ -40,6 +41,10 @@ def gdriveauth() -> Tuple[Resource, Resource]:
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
 
+    # Hotfix
+    # https://github.com/googleapis/google-api-python-client/issues/867
+    socket.setdefaulttimeout(60 * 3)
+
     return build('drive', 'v3', credentials=creds), \
         build('slides', 'v1', credentials=creds)
 
@@ -59,17 +64,18 @@ def exponentialBackoff(
             status, response = request.next_chunk()
             if status:
                 print(status.resumable_progress / status.total_size * 100)
-        file = request.execute()
+        file = request.execute(num_retries=2)
         return file
     except HttpError as e:
         print(e)
         if tries < max_tries:
+            print(f'Trying again in {time}')
             t = Timer(
                 time,
                 exponentialBackoff,
                 args=(
                     request,
-                    (tries + 1) * 2 + random.random(),
+                    2 ** (tries + 1) + random.random(),
                     tries + 1,
                     max_tries))
             t.start()
