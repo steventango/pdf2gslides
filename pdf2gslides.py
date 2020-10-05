@@ -63,7 +63,8 @@ def exponentialBackoff(
         while response is None:
             status, response = request.next_chunk()
             if status:
-                print(status.resumable_progress / status.total_size * 100)
+                print(
+                    f'Uploading: {round(status.resumable_progress / status.total_size * 100, 2)}%')
         file = request.execute(num_retries=2)
         return file
     except HttpError as e:
