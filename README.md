@@ -11,7 +11,7 @@ University has given me endless number of space consuming PDFs.
  3. [Enable the Drive and Slides API](https://developers.google.com/drive/api/v3/quickstart/python).
  4. Download `credentials.json` and put into pdf2gslides folder.
  5. Run `$ python pdf2gslides.py`.
- 6. Place PDF files to convert in the folder: in\\.
+ 6. Place PDF files to convert in the folder: `in\\`.
  7. Run `$ python pdf2gslides.py`.
  8. Authenticate the program with Google.
  9. Check your Google Drive for the GSlides converted from your PDFs.
