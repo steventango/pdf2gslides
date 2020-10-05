@@ -17,8 +17,9 @@ from google.auth.transport.requests import Request
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 
 
-def gdriveauth() -> Tuple[Resource, Resource]:
-    """Authenticate with Google drive and returns drive and slides service.
+def gdriveauth() -> Tuple(Resource, Resource):
+    """Authenticate with Google drive, maintain credentials and returns Drive
+    and Slides services.
     """
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
@@ -39,9 +40,8 @@ def gdriveauth() -> Tuple[Resource, Resource]:
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
 
-    return build(
-        'drive', 'v3', credentials=creds), build(
-        'slides', 'v1', credentials=creds)
+    return build('drive', 'v3', credentials=creds), \
+        build('slides', 'v1', credentials=creds)
 
 
 def exponentialBackoff(
