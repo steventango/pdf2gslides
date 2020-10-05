@@ -7,7 +7,10 @@ University has given me endless number of space consuming PDFs.
 
 ## Installation
  1. Install LibreOffice.
- 2. Install Python dependencies: `$ pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib numpy`.
+ 2. Install Python dependencies:
+ 
+`$ pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib numpy`.
+
  3. [Enable the Drive and Slides API](https://developers.google.com/drive/api/v3/quickstart/python).
  4. Download `credentials.json` and put into pdf2gslides folder.
  5. Run `$ python pdf2gslides.py`.
