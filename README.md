@@ -8,7 +8,7 @@ University has given me endless number of space consuming PDFs.
 ## Installation
  1. Install [LibreOffice](https://www.libreoffice.org/download/download/).
  2. Install Python dependencies: `$ pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib numpy`.
- 3. [Enable the Drive and Slides API](https://developers.google.com/drive/api/v3/quickstart/python).
+ 3. [Enable the Drive and Slides API](https://developers.google.com/drive/api/v3/quickstart/python#step_1_turn_on_the).
  4. Download `credentials.json` and put into pdf2gslides folder.
  5. Run `$ python pdf2gslides.py`.
  6. Place PDF files to convert in the folder: `in\`.
