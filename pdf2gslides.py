@@ -1,4 +1,3 @@
-import asyncio
 import os
 import pathlib
 import pickle
@@ -10,14 +9,14 @@ from typing import Tuple
 import numpy as np
 from googleapiclient.discovery import build, Resource
 from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaFileUpload
+from googleapiclient.http import HttpRequest, MediaFileUpload
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 
 
-def gdriveauth() -> Tuple(Resource, Resource):
+def gdriveauth() -> Tuple[Resource, Resource]:
     """Authenticate with Google drive, maintain credentials and returns Drive
     and Slides services.
     """
@@ -45,7 +44,7 @@ def gdriveauth() -> Tuple(Resource, Resource):
 
 
 def exponentialBackoff(
-        request: Request,
+        request: HttpRequest,
         time: int = 0,
         tries: int = 0,
         max_tries: int = 8):
@@ -77,7 +76,7 @@ def exponentialBackoff(
             raise Exception('Max tries reached.')
 
 
-async def odp2gslides(drive_service: Resource, slides_service: Resource):
+def odp2gslides(drive_service: Resource, slides_service: Resource):
     """Upload to Google drive and convert odp files to Google slides.
     """
     tempdir = os.fsencode('temp')
@@ -101,14 +100,17 @@ async def odp2gslides(drive_service: Resource, slides_service: Resource):
 
             # Close file after upload is done
             media.stream().close()
+
+            # Fix text box formatting
             gslide_id = gslide['id']
             print(f'Uploaded {filename}, id: {gslide_id}')
             fixformatgslide(slides_service, gslide_id)
 
 
 def fixformatgslide(service: Resource, pid: str):
-    """Use Google Slides API to fix the weird formatting of text boxes created
-    when Google Drive converts to .odf to .gslides.
+    """Use Google Slides API to fix the slightly too small widths of the text
+    boxes formatting caused by the Google Drive conversion from .odf to
+    .gslides.
     """
     requests = []
     presentation = service.presentations().get(
@@ -124,7 +126,8 @@ def fixformatgslide(service: Resource, pid: str):
                     T2 = np.array([[1, 0, A['translateX']],
                                    [0, 1, A['translateY']],
                                    [0, 0, 1]])
-                    B = np.array([[1.1, 0, 0], [0, 1, 0], [0, 0, 1]])
+                    SCALE_X = 1.1
+                    B = np.array([[SCALE_X, 0, 0], [0, 1, 0], [0, 0, 1]])
                     T1 = np.array([[1, 0, -A['translateX']],
                                    [0, 1, -A['translateY']],
                                    [0, 0, 1]])
@@ -150,11 +153,12 @@ def fixformatgslide(service: Resource, pid: str):
     service.presentations().batchUpdate(
         presentationId=pid,
         body=body).execute()
-    print(f'Fixed Gslides formatting, id: {pid}')
+    print(f'Fixed GSlides formatting, id: {pid}')
 
 
-async def pdf2odp():
-    """Convert PDF file to ODP intermediate using LibreOffice API
+def pdf2odp():
+    """Convert PDF file to ODP intermediate using LibreOffice command:
+    soffice --convert-to
     """
     if not os.path.exists('in'):
         os.makedirs('in')
@@ -165,6 +169,7 @@ async def pdf2odp():
     for file in os.listdir(indir):
         filename = os.fsdecode(file)
         if filename.endswith('.pdf'):
+            # https://ask.libreoffice.org/en/question/185693/pdf-to-ppt-and-excel/
             subprocess.call([
                 'soffice',
                 '--infilter=impress_pdf_import',
@@ -178,12 +183,12 @@ async def pdf2odp():
             print(f'Converted {filename} to odp')
 
 
-async def main():
+def main():
     drive_service, slides_service = gdriveauth()
-    await pdf2odp()
-    await odp2gslides(drive_service, slides_service)
+    pdf2odp()
+    odp2gslides(drive_service, slides_service)
     shutil.rmtree('temp')
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    main()
